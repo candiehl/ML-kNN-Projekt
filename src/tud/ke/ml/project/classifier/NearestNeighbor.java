@@ -20,6 +20,8 @@ public class NearestNeighbor extends ANearestNeighbor {
 	protected double[] scaling;
 	protected double[] translation;
 	
+	protected List<List<Object>> traindata;
+	
 	@Override
 	protected Object vote(List<Pair<List<Object>, Double>> subset) {
 		// TODO Auto-generated method stub
@@ -27,7 +29,7 @@ public class NearestNeighbor extends ANearestNeighbor {
 	}
 	@Override
 	protected void learnModel(List<List<Object>> traindata) {
-		// TODO Auto-generated method stub
+		this.traindata = traindata;
 		
 	}
 	@Override
@@ -71,8 +73,18 @@ public class NearestNeighbor extends ANearestNeighbor {
 	}
 	@Override
 	protected String[] getMatrikelNumbers() {
-		// TODO Auto-generated method stub
-		return null;
+		/* Can Diehl: 123456789
+		 * Robert Pinsler: 1234567
+		 * Jan Müller : 12345678
+		 */
+	
+		String[] matrNumbers = new String[3];
+		matrNumbers[0] = "123456789";
+		matrNumbers[1] = "1234567";
+		matrNumbers[2] = "12345678";
+
+		
+		return matrNumbers;
 	}
 
 }
