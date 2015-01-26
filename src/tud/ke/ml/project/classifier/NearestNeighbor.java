@@ -24,23 +24,41 @@ public class NearestNeighbor extends ANearestNeighbor {
 	
 	@Override
 	protected Object vote(List<Pair<List<Object>, Double>> subset) {
-		// TODO Auto-generated method stub
-		return null;
+		/**
+		 * Determines the winning class base on the subset of nearest neighbors
+		 * @param subset Set of nearest neighbors with their distance
+		 * @return the winning class, ususally a String
+		 */
+		
+		return "winning Class";
 	}
 	@Override
 	protected void learnModel(List<List<Object>> traindata) {
+		/*
+		 * Struktur von Testdaten:
+		 * Traindata: [[presbyopic, hypermetrope, yes, reduced, none], [presbyopic, hypermetrope, yes, normal, none]]
+		 * Traindata: [[young, myope, no, reduced, none], [young, myope, no, normal, soft], ... ]
+		 */
+		//System.out.println("Traindata: " + traindata);
 		this.traindata = traindata;
+
 		
 	}
 	@Override
 	protected Map<Object, Double> getUnweightedVotes(
 			List<Pair<List<Object>, Double>> subset) {
-		// TODO Auto-generated method stub
+		/**
+		 * Collects the votes based on an unweighted schema 
+		 * @param subset Set of nearest neighbors with their distance
+		 * @return Map of classes with their votes (e.g. returnValue.get("yes") are the votes for class "yes")
+		 */
+		
 		return null;
 	}
 	@Override
 	protected Map<Object, Double> getWeightedVotes(
 			List<Pair<List<Object>, Double>> subset) {
+		System.out.println("first: " + subset);
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -86,5 +104,7 @@ public class NearestNeighbor extends ANearestNeighbor {
 		
 		return matrNumbers;
 	}
+	
+
 
 }
