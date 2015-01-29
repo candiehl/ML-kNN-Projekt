@@ -26,7 +26,7 @@ import weka.filters.unsupervised.instance.RemovePercentage;
 public class SimpleValidation {
 
 	private static List<Instances> data;
-	private static RemovePercentage filterTrain,filterTest;
+	private static RemovePercentage filterTrain, filterTest;
 	private static keNN classifier = new keNN();
 	private static IBk wekaClassifier = new IBk();
 
@@ -35,74 +35,84 @@ public class SimpleValidation {
 		data = new LinkedList<Instances>();
 		ArffLoader loader = new ArffLoader();
 		Instances instances;
-		
+
 		loader.setFile(new File("data/contact-lenses.arff"));
 		instances = loader.getDataSet();
-		instances.setClassIndex(instances.numAttributes()-1);
+		instances.setClassIndex(instances.numAttributes() - 1);
 		data.add(instances);
-						
+
 		classifier = new keNN();
 		wekaClassifier = new IBk();
 
 		filterTrain = new RemovePercentage();
 		filterTrain.setPercentage(90);
 		filterTest = new RemovePercentage();
-		filterTest.setPercentage(10);	
+		filterTest.setPercentage(10);
 		filterTest.setInvertSelection(true);
 	}
 
 	/**
-	 * This test validates if the model is getting learned without throwing exceptions.
+	 * This test validates if the model is getting learned without throwing
+	 * exceptions.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testLearnModel() throws Exception {
-		for(Instances instances : data) {
+		for (Instances instances : data) {
 			classifier.buildClassifier(instances);
 		}
 	}
-	
+
 	/**
-	 * This test validates if the classifier is able to classify new instances without throwing exceptions.
+	 * This test validates if the classifier is able to classify new instances
+	 * without throwing exceptions.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testClassify() throws Exception {
 		classifier.setkNearest(2);
 
-		for(Instances instances : data) {
+		for (Instances instances : data) {
 			filterTrain.setInputFormat(instances);
 			filterTest.setInputFormat(instances);
-			classifier.buildClassifier(Filter.useFilter(instances, filterTrain));
-			for(Instance instance : Filter.useFilter(instances, filterTest)) {
+			classifier
+					.buildClassifier(Filter.useFilter(instances, filterTrain));
+			for (Instance instance : Filter.useFilter(instances, filterTest)) {
 				classifier.classifyInstance(instance);
 			}
 		}
 
 		classifier.setkNearest(10);
 		classifier.setMetric(new SelectedTag(1, keNN.TAGS_DISTANCE));
-		classifier.setDistanceWeighting(new SelectedTag(1, keNN.TAGS_WEIGHTING));
-		
-		for(Instances instances : data) {
+		classifier
+				.setDistanceWeighting(new SelectedTag(1, keNN.TAGS_WEIGHTING));
+
+		for (Instances instances : data) {
 			filterTrain.setInputFormat(instances);
 			filterTest.setInputFormat(instances);
-			classifier.buildClassifier(Filter.useFilter(instances, filterTrain));
-			for(Instance instance : Filter.useFilter(instances, filterTest)) {
+			classifier
+					.buildClassifier(Filter.useFilter(instances, filterTrain));
+			for (Instance instance : Filter.useFilter(instances, filterTest)) {
 				classifier.classifyInstance(instance);
 			}
 		}
 	}
 
 	/**
-	 * This test the correctness of the unweighted Manhattan distance implementation
+	 * This test the correctness of the unweighted Manhattan distance
+	 * implementation
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testCorrectnessUnweightedManhattank1() throws Exception {
 		classifier.setkNearest(1);
 		classifier.setMetric(new SelectedTag(0, keNN.TAGS_DISTANCE));
-		classifier.setDistanceWeighting(new SelectedTag(0, keNN.TAGS_WEIGHTING));
-		
+		classifier
+				.setDistanceWeighting(new SelectedTag(0, keNN.TAGS_WEIGHTING));
+
 		wekaClassifier.setKNN(1);
 		NearestNeighbourSearch search = new LinearNNSearch();
 		ManhattanDistance df = new ManhattanDistance();
@@ -110,33 +120,37 @@ public class SimpleValidation {
 		search.setDistanceFunction(df);
 		search.setMeasurePerformance(false);
 		wekaClassifier.setNearestNeighbourSearchAlgorithm(search);
-		wekaClassifier.setDistanceWeighting(new SelectedTag(IBk.WEIGHT_NONE, IBk.TAGS_WEIGHTING));
-		
-		for(Instances instances : data) {
+		wekaClassifier.setDistanceWeighting(new SelectedTag(IBk.WEIGHT_NONE,
+				IBk.TAGS_WEIGHTING));
+
+		for (Instances instances : data) {
 			filterTrain.setInputFormat(instances);
 			filterTest.setInputFormat(instances);
 			Instances train = Filter.useFilter(instances, filterTrain);
 			classifier.buildClassifier(train);
 			wekaClassifier.buildClassifier(train);
 			Instances test = Filter.useFilter(instances, filterTest);
-			for(Instance instance : test) {
+			for (Instance instance : test) {
 				double myClass = classifier.classifyInstance(instance);
 				double wekaClass = wekaClassifier.classifyInstance(instance);
-				assertEquals("Instance: ["+instance.toString()+"] classified differently: ",wekaClass,myClass,0);
+				assertEquals("Instance: [" + instance.toString()
+						+ "] classified differently: ", wekaClass, myClass, 0);
 			}
 		}
 	}
 
 	/**
 	 * This test validates the correctness of a higher k (10) classification
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testCorrectnessUnweightedEuclideank1() throws Exception {
 		classifier.setkNearest(1);
 		classifier.setMetric(new SelectedTag(1, keNN.TAGS_DISTANCE));
-		classifier.setDistanceWeighting(new SelectedTag(0, keNN.TAGS_WEIGHTING));
-		
+		classifier
+				.setDistanceWeighting(new SelectedTag(0, keNN.TAGS_WEIGHTING));
+
 		wekaClassifier.setKNN(1);
 		NearestNeighbourSearch search = new LinearNNSearch();
 		EuclideanDistance df = new EuclideanDistance();
@@ -144,33 +158,37 @@ public class SimpleValidation {
 		search.setDistanceFunction(df);
 		search.setMeasurePerformance(false);
 		wekaClassifier.setNearestNeighbourSearchAlgorithm(search);
-		wekaClassifier.setDistanceWeighting(new SelectedTag(IBk.WEIGHT_NONE, IBk.TAGS_WEIGHTING));
-		
-		for(Instances instances : data) {
+		wekaClassifier.setDistanceWeighting(new SelectedTag(IBk.WEIGHT_NONE,
+				IBk.TAGS_WEIGHTING));
+
+		for (Instances instances : data) {
 			filterTrain.setInputFormat(instances);
 			filterTest.setInputFormat(instances);
 			Instances train = Filter.useFilter(instances, filterTrain);
 			classifier.buildClassifier(train);
 			wekaClassifier.buildClassifier(train);
 			Instances test = Filter.useFilter(instances, filterTest);
-			for(Instance instance : test) {
+			for (Instance instance : test) {
 				double myClass = classifier.classifyInstance(instance);
 				double wekaClass = wekaClassifier.classifyInstance(instance);
-				assertEquals("Instance: ["+instance.toString()+"] classified differently: ",wekaClass,myClass,0);
+				assertEquals("Instance: [" + instance.toString()
+						+ "] classified differently: ", wekaClass, myClass, 0);
 			}
 		}
 	}
-	
+
 	/**
 	 * This test validates the correctness of a higher k (10) classification
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testCorrectnessWeightedManhattank10() throws Exception {
 		classifier.setkNearest(10);
 		classifier.setMetric(new SelectedTag(0, keNN.TAGS_DISTANCE));
-		classifier.setDistanceWeighting(new SelectedTag(1, keNN.TAGS_WEIGHTING));
-		
+		classifier
+				.setDistanceWeighting(new SelectedTag(1, keNN.TAGS_WEIGHTING));
+
 		wekaClassifier.setKNN(10);
 		NearestNeighbourSearch search = new LinearNNSearch();
 		ManhattanDistance df = new ManhattanDistance();
@@ -178,25 +196,28 @@ public class SimpleValidation {
 		search.setDistanceFunction(df);
 		search.setMeasurePerformance(false);
 		wekaClassifier.setNearestNeighbourSearchAlgorithm(search);
-		wekaClassifier.setDistanceWeighting(new SelectedTag(IBk.WEIGHT_INVERSE, IBk.TAGS_WEIGHTING));
-		
-		for(Instances instances : data) {
+		wekaClassifier.setDistanceWeighting(new SelectedTag(IBk.WEIGHT_INVERSE,
+				IBk.TAGS_WEIGHTING));
+
+		for (Instances instances : data) {
 			filterTrain.setInputFormat(instances);
 			filterTest.setInputFormat(instances);
 			Instances train = Filter.useFilter(instances, filterTrain);
 			classifier.buildClassifier(train);
 			wekaClassifier.buildClassifier(train);
 			Instances test = Filter.useFilter(instances, filterTest);
-			for(Instance instance : test) {
+			for (Instance instance : test) {
 				double myClass = classifier.classifyInstance(instance);
 				double wekaClass = wekaClassifier.classifyInstance(instance);
-				assertEquals("Instance: ["+instance.toString()+"] classified differently: ",wekaClass,myClass,0);
+				assertEquals("Instance: [" + instance.toString()
+						+ "] classified differently: ", wekaClass, myClass, 0);
 			}
 		}
 	}
-	
+
 	/**
 	 * This tests validates the inverse weighted, euclidean distance metric.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
@@ -205,7 +226,8 @@ public class SimpleValidation {
 
 		classifier.setkNearest(10);
 		classifier.setMetric(new SelectedTag(1, keNN.TAGS_DISTANCE));
-		classifier.setDistanceWeighting(new SelectedTag(1, keNN.TAGS_WEIGHTING));
+		classifier
+				.setDistanceWeighting(new SelectedTag(1, keNN.TAGS_WEIGHTING));
 
 		wekaClassifier.setKNN(10);
 		search = new LinearNNSearch();
@@ -214,19 +236,21 @@ public class SimpleValidation {
 		search.setDistanceFunction(df);
 		search.setMeasurePerformance(false);
 		wekaClassifier.setNearestNeighbourSearchAlgorithm(search);
-		wekaClassifier.setDistanceWeighting(new SelectedTag(IBk.WEIGHT_INVERSE, IBk.TAGS_WEIGHTING));
+		wekaClassifier.setDistanceWeighting(new SelectedTag(IBk.WEIGHT_INVERSE,
+				IBk.TAGS_WEIGHTING));
 
-		for(Instances instances : data) {
+		for (Instances instances : data) {
 			filterTrain.setInputFormat(instances);
 			filterTest.setInputFormat(instances);
 			Instances train = Filter.useFilter(instances, filterTrain);
 			classifier.buildClassifier(train);
 			wekaClassifier.buildClassifier(train);
 			Instances test = Filter.useFilter(instances, filterTest);
-			for(Instance instance : test) {
+			for (Instance instance : test) {
 				double myClass = classifier.classifyInstance(instance);
 				double wekaClass = wekaClassifier.classifyInstance(instance);
-				assertEquals("Instance: ["+instance.toString()+"] classified differently: ",wekaClass,myClass,0);
+				assertEquals("Instance: [" + instance.toString()
+						+ "] classified differently: ", wekaClass, myClass, 0);
 			}
 		}
 	}

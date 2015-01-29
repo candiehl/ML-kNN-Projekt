@@ -20,33 +20,31 @@ import weka.core.Capabilities.Capability;
 
 /**
  * WEKA Wrapper class. Do not modify.
+ * 
  * @author cwirth
  *
  */
 public class keNN extends AbstractClassifier implements OptionHandler {
 
 	private static final long serialVersionUID = 923612147248506865L;
-	
+
 	public static final int WEIGHT_NONE = 0;
 	public static final int WEIGHT_INVERSE = 1;
-	public static final Tag [] TAGS_WEIGHTING = {
-		new Tag(WEIGHT_NONE, "No distance weighting"),
-		new Tag(WEIGHT_INVERSE, "Weight by 1/distance"),
-	};
+	public static final Tag[] TAGS_WEIGHTING = {
+			new Tag(WEIGHT_NONE, "No distance weighting"),
+			new Tag(WEIGHT_INVERSE, "Weight by 1/distance"), };
 
 	public static final int DIST_MANHATTAN = 0;
 	public static final int DIST_EUCLIDEAN = 1;
-	public static final Tag [] TAGS_DISTANCE = {
-		new Tag(DIST_MANHATTAN, "Manhattan distance"),
-		new Tag(DIST_EUCLIDEAN, "Euclidean distance"),
-	};
-	
+	public static final Tag[] TAGS_DISTANCE = {
+			new Tag(DIST_MANHATTAN, "Manhattan distance"),
+			new Tag(DIST_EUCLIDEAN, "Euclidean distance"), };
+
 	public static final int NORM_TRUE = 0;
 	public static final int NORM_FALSE = 1;
-	public static final Tag [] TAGS_NORM = {
-		new Tag(NORM_FALSE, "No normalization"),
-		new Tag(NORM_TRUE, "Normalize variables"),
-	};
+	public static final Tag[] TAGS_NORM = {
+			new Tag(NORM_FALSE, "No normalization"),
+			new Tag(NORM_TRUE, "Normalize variables"), };
 
 	private NearestNeighbor classifier = new NearestNeighbor();
 
@@ -57,7 +55,7 @@ public class keNN extends AbstractClassifier implements OptionHandler {
 		List<List<Object>> data = new LinkedList<List<Object>>();
 		int classAttribute = instances.classAttribute().index();
 		determineNumericAttributes(instances);
-		for(Instance inst : instances) {
+		for (Instance inst : instances) {
 			data.add(convert(inst));
 		}
 		classifier.learnModel(data, classAttribute);
@@ -65,7 +63,8 @@ public class keNN extends AbstractClassifier implements OptionHandler {
 
 	public double classifyInstance(Instance instance) {
 		int classAttribute = instance.classAttribute().index();
-		Object classValue = classifier.classifyInstance(convert(instance), classAttribute);
+		Object classValue = classifier.classifyInstance(convert(instance),
+				classAttribute);
 		return instance.classAttribute().indexOfValue(classValue.toString());
 	}
 
@@ -75,38 +74,40 @@ public class keNN extends AbstractClassifier implements OptionHandler {
 
 	private void determineNumericAttributes(Instances instances) {
 		isNumeric = new boolean[instances.numAttributes()];
-		for(int i=0;i<isNumeric.length;i++) {
-			if(instances.attribute(i).isNumeric()) isNumeric[i]=true;
-			else isNumeric[i]=false;
-		}	
+		for (int i = 0; i < isNumeric.length; i++) {
+			if (instances.attribute(i).isNumeric())
+				isNumeric[i] = true;
+			else
+				isNumeric[i] = false;
+		}
 	}
 
 	private List<Object> convert(Instance instance) {
 		List<Object> data = new LinkedList<Object>();
-		for(int i=0;i<isNumeric.length;i++) {
-			if(isNumeric[i]) {
+		for (int i = 0; i < isNumeric.length; i++) {
+			if (isNumeric[i]) {
 				data.add(instance.value(i));
 			} else {
-				data.add(instance.attribute(i).value((int)instance.value(i)));
+				data.add(instance.attribute(i).value((int) instance.value(i)));
 			}
-		}	
+		}
 		return data;
 	}
 
 	public Enumeration<Option> listOptions() {
 		Vector<Option> newVector = new Vector<Option>(7);
 
+		newVector
+				.addElement(new Option(
+						"\tNumber of nearest neighbours (k) used in classification.\n"
+								+ "\t(Default = 1)", "K", 1,
+						"-K <number of neighbors>"));
 		newVector.addElement(new Option(
-				"\tNumber of nearest neighbours (k) used in classification.\n"+
-						"\t(Default = 1)",
-						"K", 1,"-K <number of neighbors>"));
+				"\tUse weighted voting by the inverse of their distance\n"
+						+ "\t(use when k > 1)", "I", 0, "-I"));
 		newVector.addElement(new Option(
-				"\tUse weighted voting by the inverse of their distance\n"+
-						"\t(use when k > 1)",
-						"I", 0, "-I"));
-		newVector.addElement(new Option(
-				"\tUse euclidean distance instead of manhattan.\n",
-				"E", 0,"-E "));
+				"\tUse euclidean distance instead of manhattan.\n", "E", 0,
+				"-E "));
 		newVector.addAll(Collections.list(super.listOptions()));
 
 		return newVector.elements();
@@ -136,13 +137,14 @@ public class keNN extends AbstractClassifier implements OptionHandler {
 
 	public String[] getOptions() {
 		Vector<String> options = new Vector<String>();
-		options.add("-K"); options.add("" + classifier.getkNearest());
+		options.add("-K");
+		options.add("" + classifier.getkNearest());
 
 		if (classifier.isInverseWeighting()) {
 			options.add("-I");
 		}
 
-		if (classifier.getMetric()==1) {
+		if (classifier.getMetric() == 1) {
 			options.add("-E");
 		}
 
@@ -188,16 +190,19 @@ public class keNN extends AbstractClassifier implements OptionHandler {
 
 	public SelectedTag getDistanceWeighting() {
 
-		return new SelectedTag(classifier.isInverseWeighting()?1:0, TAGS_WEIGHTING);
+		return new SelectedTag(classifier.isInverseWeighting() ? 1 : 0,
+				TAGS_WEIGHTING);
 	}
 
 	public void setDistanceWeighting(SelectedTag newMethod) {
 
 		if (newMethod.getTags() == TAGS_WEIGHTING) {
-			classifier.setInverseWeighting(newMethod.getSelectedTag().getID()==0?false:true);
+			classifier
+					.setInverseWeighting(newMethod.getSelectedTag().getID() == 0 ? false
+							: true);
 		}
 	}
-	
+
 	public String metricTipText() {
 
 		return "The distance metric used.";
@@ -214,16 +219,18 @@ public class keNN extends AbstractClassifier implements OptionHandler {
 			classifier.setMetric(newMethod.getSelectedTag().getID());
 		}
 	}
-	
+
 	public SelectedTag getNormalization() {
 
-		return new SelectedTag(classifier.isNormalizing()?1:0, TAGS_NORM);
+		return new SelectedTag(classifier.isNormalizing() ? 1 : 0, TAGS_NORM);
 	}
 
 	public void setNormalization(SelectedTag newMethod) {
 
 		if (newMethod.getTags() == TAGS_NORM) {
-			classifier.setNormalizing(newMethod.getSelectedTag().getID()==0?false:true);
+			classifier
+					.setNormalizing(newMethod.getSelectedTag().getID() == 0 ? false
+							: true);
 		}
 	}
 }
