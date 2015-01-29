@@ -143,7 +143,10 @@ public class NearestNeighbor extends ANearestNeighbor {
 		
 		List<Object> testInstance = new ArrayList<Object>();
 		testInstance.addAll(testdata);
-		testInstance.remove(this.getClassAttribute());
+		
+		if(traindata.get(0).size() == testdata.size()) {
+			testInstance.remove(this.getClassAttribute());
+		} 
 		
 		switch (this.getMetric()) {
 		case 0: { // Manhattan distance
@@ -197,14 +200,16 @@ public class NearestNeighbor extends ANearestNeighbor {
 		//System.out.println("[*] ManhattenDistance: " + this.traindata);
 		
 		double distance = 0.0;
-		for (Object attribute1 : instance1) {
+		for (int i = 0; i < instance1.size(); i++) {
+			Object attribute1 = instance1.get(i);
+			Object attribute2 = instance2.get(i);
 			if(attribute1 instanceof String){ // attribute is nominal				
-				if(attribute1 != instance2.get(instance1.indexOf(attribute1))){
+				if(!attribute1.equals(attribute2)) {
 					distance += 1.0;
 				}
 				
 			} else if ((attribute1 instanceof Double) || (attribute1 instanceof Integer)) { // attribute is continuous				
-				distance += Math.abs((Double)attribute1 - (Double)instance2.get(instance1.indexOf(attribute1)));
+				distance += Math.abs((Double)attribute1 - (Double)attribute2);
 			}	
 		}
 		return distance;
@@ -218,14 +223,16 @@ public class NearestNeighbor extends ANearestNeighbor {
 		 */
 				
 		double distance = 0.0;
-		for (Object attribute1 : instance1) {
+		for (int i = 0; i < instance1.size(); i++) {
+			Object attribute1 = instance1.get(i);
+			Object attribute2 = instance2.get(i);
 			if(attribute1 instanceof String){ // attribute is nominal
-				if(attribute1 != instance2.get(instance1.indexOf(attribute1))){
+				if(!attribute1.equals(attribute2)){
 					distance += 1.0;
 				}
 						
 			} else if ((attribute1 instanceof Double) || (attribute1 instanceof Integer)) { // attribute is continuous
-				distance += (Math.pow(Math.abs((Double)attribute1 - (Double)instance2.get(instance1.indexOf(attribute1))),2));
+				distance += (Math.pow(Math.abs((Double)attribute1 - (Double)attribute2),2));
 			}
 		}
 		
