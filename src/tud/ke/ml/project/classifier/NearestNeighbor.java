@@ -66,7 +66,7 @@ public class NearestNeighbor extends ANearestNeighbor {
 
 		Map<Object, Double> votesFor = new HashMap<Object, Double>();
 		for (Pair<List<Object>, Double> instance : subset) {
-			Object key = instance.getA();
+			Object key = instance.getA().get(this.getClassAttribute());
 			if (!votesFor.containsKey(key)) {
 				votesFor.put(key, 0.0);
 			}
@@ -87,7 +87,7 @@ public class NearestNeighbor extends ANearestNeighbor {
 		double MAX_WEIGHT = 1000000; // weight for (almost) perfect match
 
 		for (Pair<List<Object>, Double> instance : subset) {
-			Object key = instance.getA();
+			Object key = instance.getA().get(this.getClassAttribute());
 			if (!votesFor.containsKey(key)) {
 				votesFor.put(key, 0.0);
 			}
@@ -140,19 +140,29 @@ public class NearestNeighbor extends ANearestNeighbor {
 			translation = factors[1];
 			// TODO: implement
 		}
-
+		
+		List<Object> testInstance = new ArrayList<Object>();
+		testInstance.addAll(testdata);
+		testInstance.remove(this.getClassAttribute());
+		
 		switch (this.getMetric()) {
 		case 0: { // Manhattan distance
 			for (List<Object> trainInstance : traindata) {
+				List<Object> trainInst = new ArrayList<Object>();
+				trainInst.addAll(trainInstance);
+				trainInst.remove(this.getClassAttribute());
 				nearest.add(new Pair<List<Object>, Double>(trainInstance,
-						determineManhattanDistance(trainInstance, testdata)));
+						determineManhattanDistance(trainInst, testInstance)));
 			}
 			break;
 		}
 		case 1: { // Euclidean distance
 			for (List<Object> trainInstance : traindata) {
+				List<Object> trainInst = new ArrayList<Object>();
+				trainInst.addAll(trainInstance);
+				trainInst.remove(this.getClassAttribute());
 				nearest.add(new Pair<List<Object>, Double>(trainInstance,
-						determineEuclideanDistance(trainInstance, testdata)));
+						determineEuclideanDistance(trainInst, testInstance)));
 			}
 			break;
 		}
@@ -186,28 +196,17 @@ public class NearestNeighbor extends ANearestNeighbor {
 		//System.out.println("[*] ManhattenDistance: instance1: " + instance1 + "instance2: " + instance2);
 		//System.out.println("[*] ManhattenDistance: " + this.traindata);
 		
-		
-		
 		double distance = 0.0;
-		
 		for (Object attribute1 : instance1) {
-			
-			if(attribute1 instanceof String){ // attribute is nominal
-				
+			if(attribute1 instanceof String){ // attribute is nominal				
 				if(attribute1 != instance2.get(instance1.indexOf(attribute1))){
 					distance += 1.0;
 				}
 				
-			}else if ((attribute1 instanceof Double) || (attribute1 instanceof Integer)){ // attribute is discrete
-				/*
-				 * TODO: normalize calculation
-				 */
-				//Instances instances = new Instances();
-				
+			} else if ((attribute1 instanceof Double) || (attribute1 instanceof Integer)) { // attribute is continuous				
 				distance += Math.abs((Double)attribute1 - (Double)instance2.get(instance1.indexOf(attribute1)));
 			}	
 		}
-		//System.out.println("[*] ManhattenDistance: distance: " + distance);
 		return distance;
 	}
 
@@ -217,28 +216,21 @@ public class NearestNeighbor extends ANearestNeighbor {
 		/*
 		 * This function uses the 0/1 distance for nominal attributes
 		 */
-		
+				
 		double distance = 0.0;
 		for (Object attribute1 : instance1) {
-			
 			if(attribute1 instanceof String){ // attribute is nominal
-				
 				if(attribute1 != instance2.get(instance1.indexOf(attribute1))){
 					distance += 1.0;
 				}
 						
-			}else if ((attribute1 instanceof Double) || (attribute1 instanceof Integer)){ // attribute is discrete
-				/*
-				 * TODO: normalize calculation
-				 */
+			} else if ((attribute1 instanceof Double) || (attribute1 instanceof Integer)) { // attribute is continuous
 				distance += (Math.pow(Math.abs((Double)attribute1 - (Double)instance2.get(instance1.indexOf(attribute1))),2));
 			}
 		}
-		distance = Math.sqrt(distance);
-		//System.out.println("[*] EuclideanDistance: distance: " + distance);
-		return distance;
+		
+		return Math.sqrt(distance);
 	}
-
 	@Override
 	protected double[][] normalizationScaling() {
 		double[][] factors = new double[2][this.traindata.get(0).size()];
