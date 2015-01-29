@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import tud.ke.ml.project.framework.classifier.ANearestNeighbor;
 import tud.ke.ml.project.util.Pair;
+import weka.core.Instances;
 
 /**
  * This implementation assumes the class attribute is always available (but
@@ -179,15 +180,63 @@ public class NearestNeighbor extends ANearestNeighbor {
 	@Override
 	protected double determineManhattanDistance(List<Object> instance1,
 			List<Object> instance2) {
-		// TODO Auto-generated method stub
-		return 0;
+		/*
+		 * This function uses the 0/1 distance for nominal attributes
+		 */
+		//System.out.println("[*] ManhattenDistance: instance1: " + instance1 + "instance2: " + instance2);
+		//System.out.println("[*] ManhattenDistance: " + this.traindata);
+		
+		
+		
+		double distance = 0.0;
+		
+		for (Object attribute1 : instance1) {
+			
+			if(attribute1 instanceof String){ // attribute is nominal
+				
+				if(attribute1 != instance2.get(instance1.indexOf(attribute1))){
+					distance += 1.0;
+				}
+				
+			}else if ((attribute1 instanceof Double) || (attribute1 instanceof Integer)){ // attribute is discrete
+				/*
+				 * TODO: normalize calculation
+				 */
+				//Instances instances = new Instances();
+				
+				distance += Math.abs((Double)attribute1 - (Double)instance2.get(instance1.indexOf(attribute1)));
+			}	
+		}
+		//System.out.println("[*] ManhattenDistance: distance: " + distance);
+		return distance;
 	}
 
 	@Override
 	protected double determineEuclideanDistance(List<Object> instance1,
 			List<Object> instance2) {
-		// TODO Auto-generated method stub
-		return 0;
+		/*
+		 * This function uses the 0/1 distance for nominal attributes
+		 */
+		
+		double distance = 0.0;
+		for (Object attribute1 : instance1) {
+			
+			if(attribute1 instanceof String){ // attribute is nominal
+				
+				if(attribute1 != instance2.get(instance1.indexOf(attribute1))){
+					distance += 1.0;
+				}
+						
+			}else if ((attribute1 instanceof Double) || (attribute1 instanceof Integer)){ // attribute is discrete
+				/*
+				 * TODO: normalize calculation
+				 */
+				distance += (Math.pow(Math.abs((Double)attribute1 - (Double)instance2.get(instance1.indexOf(attribute1))),2));
+			}
+		}
+		distance = Math.sqrt(distance);
+		//System.out.println("[*] EuclideanDistance: distance: " + distance);
+		return distance;
 	}
 
 	@Override
