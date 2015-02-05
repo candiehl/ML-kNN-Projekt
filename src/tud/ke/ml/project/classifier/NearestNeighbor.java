@@ -136,9 +136,34 @@ public class NearestNeighbor extends ANearestNeighbor {
 
 		if (isNormalizing()) {
 			double[][] factors = normalizationScaling();
-			scaling = factors[0];
-			translation = factors[1];
+			boolean scaled = false;
+			if(scaling == null){
+				scaling = factors[0];
+				translation = factors[1];
+			}
+			else scaled = true;
 			// TODO: implement
+			
+			for(int i=0; i < scaling.length ; i++){
+				if(i==4){
+				//System.out.println("test: "+testdata.get(i));
+				System.out.println("scaling: "+scaling[i]);
+				}
+				if(translation[i] != 0.0d){
+					double new_attribute_value_testdata = ((double)testdata.get(i) - scaling[i]) / translation[i];
+					testdata.set(i, new_attribute_value_testdata);					
+				}
+				if(!scaled){
+					for (List<Object> trainInstance : traindata) {
+						Object attribute_value = trainInstance.get(i);
+						if(translation[i] != 0.0d){
+							double new_attribute_value = ((double)attribute_value - scaling[i]) / translation[i];
+							trainInstance.set(i, new_attribute_value);
+						}
+					}
+				}
+			}
+			
 		}
 		
 		List<Object> testInstance = new ArrayList<Object>();
@@ -241,7 +266,29 @@ public class NearestNeighbor extends ANearestNeighbor {
 	@Override
 	protected double[][] normalizationScaling() {
 		double[][] factors = new double[2][this.traindata.get(0).size()];
-		// TODO: implement
+		double[] max_factors = new double[this.traindata.get(0).size()];
+		double[] min_factors = new double[this.traindata.get(0).size()];
+		for (List<Object> trainInstance : traindata) {
+			List<Object> trainInst = new ArrayList<Object>();
+			trainInst.addAll(trainInstance);
+			for (int i = 0; i < trainInst.size(); i++) {
+				Object attribute = trainInst.get(i);
+				if((attribute instanceof Double) || (attribute instanceof Integer)){
+					if (min_factors[i] > (double) attribute || min_factors[i] == 0.0d){
+						min_factors[i] = (double) attribute;
+					}
+					if (max_factors[i] < (double) attribute || min_factors[i] == 0.0d){
+						max_factors[i] = (double) attribute;
+					}
+				}
+			}
+		}
+		for (int i = 0; i < this.traindata.get(0).size(); i++) {
+			factors[0][i] = min_factors[i];
+			factors[1][i] = max_factors[i] - min_factors[i];
+		}
+		//System.out.println("Translation Factors: "+factors[0][4]);
+		//System.out.println("Scaling Factors: "+max_factors[1][4]);
 		return factors;
 	}
 
