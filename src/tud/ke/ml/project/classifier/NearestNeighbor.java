@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import tud.ke.ml.project.framework.classifier.ANearestNeighbor;
 import tud.ke.ml.project.util.Pair;
@@ -125,9 +126,20 @@ public class NearestNeighbor extends ANearestNeighbor {
 		}
 		return breakWinnerTie(winners);
 	}
-
+	
+	/**
+	 * Chooses a random winner
+	 * 
+	 * An alternative approach would be to take the frequency of the classes into account
+	 * and choose the one, with the most frequent class
+	 * 
+	 * @param winners List<Object> with all possible winners
+	 * @return
+	 */
 	private Object breakWinnerTie(List<Object> winners) {
-		return winners.get(0); // TODO: implement proper selection strategy
+		Random rand = new Random();
+		int randomNum = rand.nextInt((winners.size()));
+		return winners.get(randomNum);
 	}
 
 	@Override
@@ -142,7 +154,6 @@ public class NearestNeighbor extends ANearestNeighbor {
 				translation = factors[1];
 			}
 			else scaled = true;
-			// TODO: implement
 			
 			for(int i=0; i < scaling.length ; i++){
 				if(i==4){
@@ -208,11 +219,23 @@ public class NearestNeighbor extends ANearestNeighbor {
 		return breakNearestTie(nearest, this.getkNearest());
 	}
 
+	/**
+	 * Choose the nearest neighbors.
+	 * 
+	 * For Tie Breaks increase k till Tie Break is resolved or k = n
+	 * 
+	 * @param nearest all neighbors sorted by distance
+	 * @param k
+	 * @return
+	 */
 	private List<Pair<List<Object>, Double>> breakNearestTie(
 			List<Pair<List<Object>, Double>> nearest, int k) {
+
+		while(nearest.get(k).getB() == nearest.get(k+1).getB() && (k+2) < nearest.size()){
+			k += 1;
+		}
 		
-		return nearest.subList(0, Math.min(nearest.size(), k)); // TODO: implement proper
-														// selection strategy
+		return nearest.subList(0, Math.min(nearest.size(), k));
 	}
 
 	@Override
